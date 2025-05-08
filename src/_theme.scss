@@ -1,0 +1,22 @@
+@use "variables" as *;
+
+// Tema escuro
+body[data-bs-theme="dark"] {
+  background-color: var(--bg-dark);
+  color: #e9ecef;
+}
+
+.theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.user-profile {
+  .profile-pic {
+    [data-bs-theme="dark"] & {
+      border-color: $secondary;
+    }
+  }
+}
