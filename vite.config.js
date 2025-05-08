@@ -9,5 +9,13 @@ export default defineConfig({
         additionalData: ""
       }
     }
+  },
+  build: {
+    outDir: 'dist',
+    rollupOptions: {
+      input: {
+        main: './index.html'
+      }
+    }
   }
 })
