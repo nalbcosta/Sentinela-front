@@ -104,7 +104,7 @@ export default function Chat() {
                   className="logo-icon mb-3" 
                   style={{ width: sidebarCollapsed ? '40px' : '60px', transition: 'all 0.3s' }}
                 />
-                {!sidebarCollapsed && <h4 className="text-white mb-0 text-uppercase"><b>Sentinel AI</b></h4>}
+                {!sidebarCollapsed && <h4 className="app-name text-white mb-0 text-uppercase"><b>Sentinel AI</b></h4>}
               </div>
               <Sidebar messages={messages} />
             </div>

@@ -13,7 +13,7 @@ const Sidebar = ({ messages }) => {
           {messages.length === 0 ? (
             <div className="text-center py-5">
               <HiOutlineChatBubbleOvalLeft className="text-white mb-3" size={40} />
-              <p className="text-white-50">Nenhuma conversa recente</p>
+              <p className="texto-base text-white-50">Nenhuma conversa recente</p>
             </div>
           ) : (
             messages.map((msg, index) => (
