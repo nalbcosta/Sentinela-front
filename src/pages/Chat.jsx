@@ -9,7 +9,10 @@ import logo from '../assets/logo.svg';
 import Photo from '../assets/NoPhoto.jpeg';
 
 export default function Chat() {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => {
+    const savedMessages = localStorage.getItem('chatMessages');
+    return savedMessages ? JSON.parse(savedMessages) : [];
+  });
   const [input, setInput] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -57,7 +60,14 @@ export default function Chat() {
     }
   };
 
-  const clearChat = () => setMessages([]);
+  useEffect(() => {
+    localStorage.setItem('chatMessages', JSON.stringify(messages));
+  }, [messages]);
+
+  const clearChat = () => {
+    setMessages([]);
+    localStorage.removeItem('chatMessages');
+  };
   const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
 
   const [isLoggedIn] = useState(false);

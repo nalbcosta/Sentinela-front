@@ -11,12 +11,12 @@ const FraudBadge = ({ isFraud, details }) => {
       {isFraud ? (
         <>
           <MdSecurity className="fs-5" />
-          <span>{details || 'Verificação falhou'}</span>
+          <span>{details || 'Fraude'}</span>
         </>
       ) : (
         <>
           <MdVerified className="fs-5" />
-          <span>{details || 'Mensagem válida'}</span>
+          <span>{details || 'Legítima'}</span>
         </>
       )}
     </Badge>
