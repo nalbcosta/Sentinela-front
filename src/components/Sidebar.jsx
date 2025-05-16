@@ -5,7 +5,7 @@ import {
 } from 'react-icons/hi2'
 import FraudBadge from './FraudBadge'
 
-const Sidebar = ({ messages }) => {
+const Sidebar = ({ messages, sidebarCollapsed }) => {
   return (
     <Card className="h-100 border-0 bg-transparent">
       <Card.Body className="d-flex flex-column p-0">
@@ -13,16 +13,26 @@ const Sidebar = ({ messages }) => {
           {messages.length === 0 ? (
             <div className="text-center py-5">
               <HiOutlineChatBubbleOvalLeft className="text-white mb-3" size={40} />
-              <p className="texto-base text-white-50">Nenhuma conversa recente</p>
+              {!sidebarCollapsed && (
+                <p className="texto-base text-white-50">Nenhuma conversa recente</p>
+              )}
             </div>
           ) : (
             messages.map((msg, index) => (
               <ListGroup.Item 
                 key={index}
                 action 
-                className="border-0 bg-transparent text-white rounded-3 mb-2"
+                className={`border-0 bg-transparent text-white rounded-3 mb-2 d-flex align-items-center justify-content-center ${sidebarCollapsed ? 'p-2' : ''}`}
+                style={sidebarCollapsed ? { justifyContent: 'center', padding: '12px 0' } : {}}
               >
-                <div className="d-flex align-items-center gap-3">
+                {sidebarCollapsed ? (
+                  // Apenas ícones quando colapsado
+                  <>
+                    <HiOutlineDocumentText className="text-primary" size={24} />
+                    <FraudBadge isFraud={msg.isFraud} />
+                  </>
+                ) : (
+                <div className="d-flex align-items-center gap-3 w-100">
                   <div className="bg-white rounded-circle p-2">
                     <HiOutlineDocumentText className="text-primary" />
                   </div>
@@ -39,18 +49,11 @@ const Sidebar = ({ messages }) => {
                     </small>
                   </div>
                 </div>
+                )}
               </ListGroup.Item>
             ))
           )}
         </ListGroup>
-        
-        <Button 
-          variant="light" 
-          className="rounded-pill mx-3 mb-3 d-flex align-items-center gap-2"
-        >
-          <HiOutlineChatBubbleOvalLeft />
-          <span>Nova Análise</span>
-        </Button>
       </Card.Body>
     </Card>
   )

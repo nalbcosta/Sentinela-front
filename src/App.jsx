@@ -12,12 +12,6 @@ import './main.scss';
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const toggleTheme = () => {
-    document.body.setAttribute('data-bs-theme', 
-      document.body.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark'
-    );
-  };
-
   return (
     <BrowserRouter>
       <Routes>
@@ -27,13 +21,6 @@ export default function App() {
         <Route path="/register" element={<Register />} />
       </Routes>
 
-      <button 
-        onClick={toggleTheme}
-        className="theme-toggle btn btn-primary rounded-circle p-2"
-      >
-        <FiSun className="theme-icon-light" />
-        <FiMoon className="theme-icon-dark" />
-      </button>
     </BrowserRouter>
   );
 }

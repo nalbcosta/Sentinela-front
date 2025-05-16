@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, Button, OverlayTrigger, Tooltip, Alert } from 'react-bootstrap';
-import { FiMenu, FiPlus, FiTrash2, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiMenu, FiPlus, FiTrash2, FiChevronLeft, FiChevronRight, FiSun, FiMoon } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
 import FraudBadge from '../components/FraudBadge';
@@ -19,6 +19,12 @@ export default function Chat() {
   const [error, setError] = useState(null);
 
   const API_URL = import.meta.env.VITE_API_URL;
+
+  const toggleTheme = () => {
+    document.body.setAttribute('data-bs-theme', 
+      document.body.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark'
+    );
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -93,6 +99,13 @@ export default function Chat() {
         )}
       </div>
 
+      {/* Botão flutuante da logo para abrir a sidebar no mobile */}
+      {sidebarCollapsed && (
+        <div className="sidebar-logo-toggle" onClick={toggleSidebar}>
+          <img src={logo} alt="Abrir menu" />
+        </div>
+      )}
+
       <Container fluid className="chat-container p-0">
         {error && <Alert variant="danger" className="m-3">{error}</Alert>}
         <Row className="g-0 h-100">
@@ -116,7 +129,7 @@ export default function Chat() {
                 />
                 {!sidebarCollapsed && <h4 className="app-name text-white mb-0 text-uppercase"><b>Sentinel AI</b></h4>}
               </div>
-              <Sidebar messages={messages} />
+              <Sidebar messages={messages} sidebarCollapsed={sidebarCollapsed} />
             </div>
           </Col>
           
@@ -179,6 +192,20 @@ export default function Chat() {
           >
             <Button variant="danger" onClick={clearChat}>
               <FiTrash2 size={18} />
+            </Button>
+          </OverlayTrigger>
+
+          <OverlayTrigger
+            placement="left"
+            overlay={<Tooltip>Modo Escuro</Tooltip>}
+          >
+            <Button
+              variant="primary"
+              onClick={toggleTheme}
+              style={{margin: 0}}
+            >
+              <FiSun className="theme-icon-light" />
+              <FiMoon className="theme-icon-dark" />
             </Button>
           </OverlayTrigger>
         </div>
