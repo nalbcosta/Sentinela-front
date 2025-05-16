@@ -1,9 +1,43 @@
+import { useState } from 'react'
 import { Container, Card, Form, Button } from 'react-bootstrap'
 import { FaUserPlus, FaArrowLeft } from 'react-icons/fa'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.svg' // Altere para o caminho correto
 
 const Register = () => {
+  const [nome, setNome] = useState('')
+  const [email, setEmail] = useState('')
+  const [senha, setSenha] = useState('')
+  const [erro, setErro] = useState('')
+  const [sucesso, setSucesso] = useState('')
+  const navigate = useNavigate()
+
+  // Função para lidar com registro (futuramente adicionar chamada à API)
+  const handleRegister = async (e) => {
+    e.preventDefault()
+    setErro('')
+    setSucesso('')
+
+    // Recupera usuários já cadastrados
+    const users = JSON.parse(localStorage.getItem('users') || '[]')
+    const exists = users.find(u => u.email === email)
+
+    if (exists) {
+      setErro('Email já cadastrado.')
+      return
+    }
+
+    if (nome && email && senha) {
+      const newUser = { nome, email, senha }
+      users.push(newUser)
+      localStorage.setItem('users', JSON.stringify(users))
+      setSucesso('Cadastro realizado com sucesso!')
+      setTimeout(() => navigate('/login'), 1500)
+    } else {
+      setErro('Preencha todos os campos.')
+    }
+  }
+
   return (
     <Container className="d-flex align-items-center justify-content-center min-vh-100">
       <Card className="shadow-lg rounded-4" style={{ width: '100%', maxWidth: '450px' }}>
@@ -28,7 +62,9 @@ const Register = () => {
             <p className="text-muted mb-0">Proteja suas comunicações</p>
           </div>
 
-          <Form>
+          <Form onSubmit={handleRegister}>
+            {erro && <div className="text-danger mb-3">{erro}</div>}
+            {sucesso && <div className="text-success mb-3">{sucesso}</div>}
             <Form.Group className="mb-3">
               <Form.Label className="fw-semibold">Nome Completo</Form.Label>
               <Form.Control 

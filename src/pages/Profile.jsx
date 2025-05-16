@@ -1,10 +1,41 @@
+import { useState, useEffect } from 'react'
 import { Container, Card, Form, Button, Image } from 'react-bootstrap'
 import { FaUserEdit, FaUpload, FaArrowLeft } from 'react-icons/fa'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Photo from '../assets/NoPhoto.jpeg'
 import logo from '../assets/logo.svg' // Altere para o caminho correto
 
 const Profile = () => {
+  const [nome, setNome] = useState('')
+  const [email, setEmail] = useState('')
+  const [senha, setSenha] = useState('')
+  const [msg, setMsg] = useState('')
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('currentUser'))
+    if (user) {
+      setNome(user.nome)
+      setEmail(user.email)
+    }
+  }, [])
+
+  const handleUpdate = (e) => {
+    e.preventDefault()
+    const users = JSON.parse(localStorage.getItem('users') || '[]')
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'))
+    const updatedUsers = users.map(u =>
+      u.email === currentUser.email
+        ? { ...u, nome, senha: senha ? senha : u.senha }
+        : u
+    )
+    localStorage.setItem('users', JSON.stringify(updatedUsers))
+    const updatedUser = { ...currentUser, nome, senha: senha ? senha : currentUser.senha }
+    localStorage.setItem('currentUser', JSON.stringify(updatedUser))
+    setMsg('Perfil atualizado!')
+    setSenha('')
+  }
+
   return (
     <Container className="d-flex align-items-center justify-content-center min-vh-100">
       <Card className="shadow-lg rounded-4" style={{ width: '100%', maxWidth: '600px' }}>
@@ -48,35 +79,37 @@ const Profile = () => {
             <h2 className="mt-3 fw-bold">Meu Perfil</h2>
           </div>
 
-          <Form>
+          <Form onSubmit={handleUpdate}>
             <Form.Group className="mb-3">
               <Form.Label className="fw-semibold">Nome Completo</Form.Label>
               <Form.Control 
                 type="text" 
-                defaultValue="Fulano da Silva"
+                value={nome}
+                onChange={e => setNome(e.target.value)}
                 className="py-2 rounded-3"
                 required
               />
             </Form.Group>
-
             <Form.Group className="mb-3">
               <Form.Label className="fw-semibold">Email</Form.Label>
               <Form.Control
                 type="email"
-                defaultValue="fulano@email.com"
+                value={email}
                 className="py-2 rounded-3 bg-light"
                 disabled
               />
             </Form.Group>
-
             <Form.Group className="mb-4">
               <Form.Label className="fw-semibold">Nova Senha</Form.Label>
               <Form.Control
                 type="password"
                 placeholder="Deixe em branco para manter a atual"
                 className="py-2 rounded-3"
+                value={senha}
+                onChange={e => setSenha(e.target.value)}
               />
             </Form.Group>
+            {msg && <div className="text-success mb-3">{msg}</div>}
 
             <div className="d-flex justify-content-end gap-3">
               <Button 

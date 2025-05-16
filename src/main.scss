@@ -261,9 +261,9 @@ body {
 
 .user-profile {
   position: fixed;
+  z-index: 99999;
   top: 20px;
   right: 20px;
-  z-index: 1001;
   
   .profile-pic {
     width: 45px;

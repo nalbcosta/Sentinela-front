@@ -9,10 +9,17 @@ import logo from '../assets/logo.svg';
 import Photo from '../assets/NoPhoto.jpeg';
 
 export default function Chat() {
+  // Recuperar usuário logado
+  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+  const isLoggedIn = !!currentUser;
+
+  // Carrega mensagens do usuário logado
   const [messages, setMessages] = useState(() => {
-    const savedMessages = localStorage.getItem('chatMessages');
-    return savedMessages ? JSON.parse(savedMessages) : [];
+    if (!isLoggedIn) return [];
+    const saved = localStorage.getItem(`chatMessages_${currentUser.email}`);
+    return saved ? JSON.parse(saved) : [];
   });
+
   const [input, setInput] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -20,10 +27,25 @@ export default function Chat() {
 
   const API_URL = import.meta.env.VITE_API_URL;
 
+  // Salva mensagens apenas se logado
+  useEffect(() => {
+    if (isLoggedIn) {
+      localStorage.setItem(`chatMessages_${currentUser.email}`, JSON.stringify(messages));
+    }
+  }, [messages, isLoggedIn, currentUser]);
+
   const toggleTheme = () => {
     document.body.setAttribute('data-bs-theme', 
       document.body.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark'
     );
+  };
+
+  // Limpa histórico apenas do usuário logado
+  const clearChat = () => {
+    setMessages([]);
+    if (isLoggedIn) {
+      localStorage.removeItem(`chatMessages_${currentUser.email}`);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -66,17 +88,7 @@ export default function Chat() {
     }
   };
 
-  useEffect(() => {
-    localStorage.setItem('chatMessages', JSON.stringify(messages));
-  }, [messages]);
-
-  const clearChat = () => {
-    setMessages([]);
-    localStorage.removeItem('chatMessages');
-  };
   const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
-
-  const [isLoggedIn] = useState(false);
 
   return (
     <>
