@@ -10,6 +10,10 @@ body {
   margin: 0;
 }
 
+.logout {
+  z-index: 1;
+}
+
 // Layout principal
 .chat-container {
   height: 100vh;

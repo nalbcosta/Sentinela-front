@@ -63,8 +63,6 @@ const Register = () => {
           </div>
 
           <Form onSubmit={handleRegister}>
-            {erro && <div className="text-danger mb-3">{erro}</div>}
-            {sucesso && <div className="text-success mb-3">{sucesso}</div>}
             <Form.Group className="mb-3">
               <Form.Label className="fw-semibold">Nome Completo</Form.Label>
               <Form.Control 
@@ -72,6 +70,8 @@ const Register = () => {
                 placeholder="Seu nome"
                 className="py-2 rounded-3"
                 required
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
               />
             </Form.Group>
 
@@ -82,6 +82,8 @@ const Register = () => {
                 placeholder="seu@email.com"
                 className="py-2 rounded-3"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </Form.Group>
 
@@ -92,6 +94,8 @@ const Register = () => {
                 placeholder="••••••••"
                 className="py-2 rounded-3"
                 required
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
               />
             </Form.Group>
 
@@ -112,6 +116,8 @@ const Register = () => {
                 Faça login
               </Link>
             </div>
+            {erro && <div className="text-danger mb-3">{erro}</div>}
+            {sucesso && <div className="text-success mb-3">{sucesso}</div>}
           </Form>
         </Card.Body>
       </Card>

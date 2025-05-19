@@ -20,7 +20,7 @@ const Login = () => {
 
     if (user) {
       localStorage.setItem('currentUser', JSON.stringify(user))
-      navigate('/dashboard')
+      navigate('/chat')
     } else {
       setErro('Email ou senha inválidos.')
     }
@@ -51,7 +51,6 @@ const Login = () => {
           </div>
 
           <Form onSubmit={handleLongin}>
-            {erro && <div className="text-danger mb-3">{erro}</div>}
             <Form.Group className="mb-3">
               <Form.Label className="fw-semibold">Email</Form.Label>
               <Form.Control 
@@ -59,6 +58,8 @@ const Login = () => {
                 placeholder="seu@email.com"
                 className="py-2 rounded-3"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </Form.Group>
 
@@ -69,6 +70,8 @@ const Login = () => {
                 placeholder="••••••••"
                 className="py-2 rounded-3"
                 required
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
               />
             </Form.Group>
 
@@ -89,6 +92,7 @@ const Login = () => {
                 Criar conta
               </Link>
             </div>
+            {erro && <div className="text-danger mb-3">{erro}</div>}
           </Form>
         </Card.Body>
       </Card>

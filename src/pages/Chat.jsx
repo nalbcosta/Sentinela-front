@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, Button, OverlayTrigger, Tooltip, Alert } from 'react-bootstrap';
-import { FiMenu, FiPlus, FiTrash2, FiChevronLeft, FiChevronRight, FiSun, FiMoon } from 'react-icons/fi';
+import { FiMenu, FiPlus, FiTrash2, FiChevronLeft, FiChevronRight, FiSun, FiMoon, FiLogOut } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
 import FraudBadge from '../components/FraudBadge';
@@ -39,6 +39,11 @@ export default function Chat() {
       document.body.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark'
     );
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem('currentUser');
+    navigate('/login');
+  }
 
   // Limpa histórico apenas do usuário logado
   const clearChat = () => {
@@ -144,6 +149,20 @@ export default function Chat() {
               <Sidebar messages={messages} sidebarCollapsed={sidebarCollapsed} />
             </div>
           </Col>
+
+          {/* Botão de logout fixo no final */}
+          {isLoggedIn && (
+            <div className="mt-auto pt-3">
+              <Button 
+                variant="outline-light" 
+                className="logout w-100 d-flex align-items-center justify-content-center gap-2"
+                onClick={handleLogout}
+              >
+                <FiLogOut size={20} />
+                {!sidebarCollapsed && "Sair"}
+              </Button>
+            </div>
+          )}
           
           <Col md={9} className="chat-area p-4">
             <div className="messages-container">
