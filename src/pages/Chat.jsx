@@ -126,7 +126,24 @@ export default function Chat() {
       <Container fluid className="chat-container p-0">
         {error && <Alert variant="danger" className="m-3">{error}</Alert>}
         <Row className="g-0 h-100">
-          <Col md={3} className={`sidebar position-fixed h-100 ${sidebarCollapsed ? 'collapsed' : ''}`}>
+          <Col md={3} className={`sidebar position-fixed h-100 ${sidebarCollapsed ? 'collapsed' : ''}`}
+          style={{
+            width: sidebarCollapsed ? '7vw' : '30vw',
+            zIndex: 2
+          }}>
+            {/* Botão de logout fixo no final */}
+            {isLoggedIn && (
+              <div className="d-flex justify-content-end">
+                <Button 
+                  variant="outline-light" 
+                  className="logout w-100 d-flex align-items-center justify-content-center gap-2"
+                  onClick={handleLogout}
+                >
+                  <FiLogOut size={20} />
+                  {!sidebarCollapsed && "Sair"}
+                </Button>
+              </div>
+            )}
             <Button 
               variant="light" 
               className="sidebar-toggle"
@@ -149,22 +166,12 @@ export default function Chat() {
               <Sidebar messages={messages} sidebarCollapsed={sidebarCollapsed} />
             </div>
           </Col>
-
-          {/* Botão de logout fixo no final */}
-          {isLoggedIn && (
-            <div className="mt-auto pt-3">
-              <Button 
-                variant="outline-light" 
-                className="logout w-100 d-flex align-items-center justify-content-center gap-2"
-                onClick={handleLogout}
-              >
-                <FiLogOut size={20} />
-                {!sidebarCollapsed && "Sair"}
-              </Button>
-            </div>
-          )}
           
-          <Col md={9} className="chat-area p-4">
+          <Col md={9} className="chat-area p-4" style={{
+            marginLeft: sidebarCollapsed ? '7vw' : '30vw',
+            width: sidebarCollapsed ? '93vw' : '70vw',
+            transition: 'margin-left 0.3s'
+          }}>
             <div className="messages-container">
               {messages.map((msg, i) => (
                 <div 
