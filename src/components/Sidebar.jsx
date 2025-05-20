@@ -27,10 +27,10 @@ const Sidebar = ({ messages, sidebarCollapsed }) => {
               >
                 {sidebarCollapsed ? (
                   // Apenas ícones quando colapsado
-                  <>
-                    <HiOutlineDocumentText className="text-primary" size={24} />
-                    <FraudBadge isFraud={msg.isFraud} />
-                  </>
+                  <HiOutlineDocumentText
+                    size={24}
+                    style={{ color: msg.isFraud ? '#dc3545' : '#28a745' }}
+                  />
                 ) : (
                 <div className="d-flex align-items-center gap-3 w-100">
                   <div className="bg-white rounded-circle p-2">
