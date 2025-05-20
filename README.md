@@ -1,12 +1,48 @@
-# React + Vite
+# Sentinel AI - Projeto ProjectLabs
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este é o repositório do **Sentinel AI**, um sistema web para análise de fraudes em tempo real, desenvolvido como projeto em grupo para a disciplina **ProjectLabs**.
 
-Currently, two official plugins are available:
+--- 
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Descrição
 
-## Expanding the ESLint configuration
+O Sentinel AI é uma aplicação full-stack que permite aos usuários registrar-se, autenticar-se, analisar mensagens suspeitas de fraude e visualizar o histórico de análises. O sistema utiliza uma IA para detecção de fraudes, backend robusto e banco de dados seguro.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Tecnologias Utilizadas
+
+- **Frontend:** React, React Bootstrap, React Router, SCSS
+- **Backend:** Java Springboot (em desenvolvimento)
+- **Banco de Dados:** MySQL (em desenvolvimento)
+- **IA de Fraude:** Modelo customizado para detecção de fraudes com Python
+
+--- 
+
+## Como testar o projeto
+
+- Abra o projeto via o link do vercel: https://sentinela-front-nine.vercel.app/
+
+## Estrutura do Projeto
+
+- `/src/pages` — Páginas principais (Login, Registro, Chat, Perfil)
+- `/src/components` — Componentes reutilizáveis (Sidebar, etc)
+- `/src/assets` — Imagens e logos
+- `/src/main.scss` — Estilos globais
+
+--- 
+
+## Integrantes e Responsabilidades
+
+- **Luiz Fernando Brito Ferreira:** Inteligência Artificial de Fraude
+- **Lucas Pinheiro Resende:** Backend
+- **Natanael do Nascimento Rodrigues:** Backend
+- **Heitor Barboza da Silva:** Banco de Dados
+- **Nalbert Schwank Costa Santos:** Frontend
+
+## Observações
+
+- O projeto está em desenvolvimento e será integrado ao backend e IA em breve.
+- Para dúvidas ou sugestões, abra uma issue ou entre em contato com os integrantes.
+
+---
+
+Projeto desenvolvido para a disciplina **ProjectLabs**.
