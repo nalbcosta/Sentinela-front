@@ -4,36 +4,50 @@ import { FaUserEdit, FaUpload, FaArrowLeft } from 'react-icons/fa'
 import { Link, useNavigate } from 'react-router-dom'
 import Photo from '../assets/NoPhoto.jpeg'
 import logo from '../assets/logo.svg' // Altere para o caminho correto
+import axios from 'axios'
 
 const Profile = () => {
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
+  const [telefone, setTelefone] = useState('')
   const [msg, setMsg] = useState('')
   const navigate = useNavigate()
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('currentUser'))
-    if (user) {
-      setNome(user.nome)
-      setEmail(user.email)
+    if (user && user.id) {
+      axios.get(`${import.meta.env.VITE_API_URL}/usuarios/${user.id}`)
+        .then(res => {
+          setNome(res.data.nome)
+          setEmail(res.data.email)
+          setTelefone(res.data.telefone)
+        })
+        .catch(() => {
+          setMsg('Erro ao carregar dados do perfil.')
+        })
     }
   }, [])
 
-  const handleUpdate = (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault()
-    const users = JSON.parse(localStorage.getItem('users') || '[]')
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'))
-    const updatedUsers = users.map(u =>
-      u.email === currentUser.email
-        ? { ...u, nome, senha: senha ? senha : u.senha }
-        : u
-    )
-    localStorage.setItem('users', JSON.stringify(updatedUsers))
-    const updatedUser = { ...currentUser, nome, senha: senha ? senha : currentUser.senha }
-    localStorage.setItem('currentUser', JSON.stringify(updatedUser))
-    setMsg('Perfil atualizado!')
-    setSenha('')
+    setMsg('')
+    const user = JSON.parse(localStorage.getItem('currentUser'))
+    try {
+      const response = await axios.put(`${import.meta.env.VITE_API_URL}/usuarios/${user.id}`, {
+        nome,
+        telefone,
+        senha: senha || undefined // só envia se for alterada
+      })
+      if (response.status === 200) {
+        const updatedUser = { ...user, nome, telefone, senha: senha ? senha : user.senha }
+        localStorage.setItem('currentUser', JSON.stringify(updatedUser))
+        setMsg('Perfil atualizado!')
+        setSenha('')
+      }
+    } catch {
+      setMsg('Erro ao atualizar perfil!')
+    }
   }
 
   return (
@@ -65,7 +79,7 @@ const Profile = () => {
                 roundedCircle 
                 width={150}
                 height={150}
-                className="border border-4 border-primary-subtle object-fit-cover"
+                className="border-4 border-primary-subtle object-fit-cover"
               />
               <Button 
                 variant="primary" 
@@ -97,6 +111,16 @@ const Profile = () => {
                 value={email}
                 className="py-2 rounded-3 bg-light"
                 disabled
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-semibold">Telefone</Form.Label>
+              <Form.Control
+                type="tel"
+                value={telefone}
+                onChange={e => setTelefone(e.target.value)}
+                className="py-2 rounded-3"
+                required
               />
             </Form.Group>
             <Form.Group className="mb-4">
