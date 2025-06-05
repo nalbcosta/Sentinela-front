@@ -3,6 +3,9 @@ import { Container, Card, Form, Button } from 'react-bootstrap'
 import { FaSignInAlt, FaArrowLeft } from 'react-icons/fa'
 import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.svg' // Altere para o caminho correto
+import axios from 'axios'
+
+const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 const Login = () => {
   const [email, setEmail] = useState('')
@@ -10,19 +13,28 @@ const Login = () => {
   const [erro, setErro] = useState('')
   const navigate = useNavigate()
 
-  //Função para lidar com login(Precisa ser implementado o API do Backend)
+  //Função para lidar com login
   const handleLongin = async (e) => {
-    e.preventDefault()
-    setErro('')
+    e.preventDefault();
+    setErro('');
 
-    const users = JSON.parse(localStorage.getItem('users') || '[]')
-    const user = users.find(u => u.email === email && u.senha === senha)
+    try {
+      const response = await axios.post(`${apiUrl}/usuarios/login`, {
+        email,
+        senha
+      });
 
-    if (user) {
-      localStorage.setItem('currentUser', JSON.stringify(user))
-      navigate('/chat')
-    } else {
-      setErro('Email ou senha inválidos.')
+      if (response.status === 200) {
+        // Você pode salvar o email do usuário ou token, se o backend retornar
+        localStorage.setItem('currentUser', JSON.stringify({ email }));
+        navigate('/chat');
+      }
+    } catch (err) {
+      if (err.response && err.response.status === 401) {
+        setErro('Email ou senha inválidos.');
+      } else {
+        setErro('Erro ao conectar com o servidor.');
+      }
     }
   }
 

@@ -1,38 +1,46 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, Button, OverlayTrigger, Tooltip, Alert } from 'react-bootstrap';
 import { FiMenu, FiPlus, FiTrash2, FiChevronLeft, FiChevronRight, FiSun, FiMoon, FiLogOut } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
 import FraudBadge from '../components/FraudBadge';
 import Sidebar from '../components/Sidebar';
 import logo from '../assets/logo.svg';
 import Photo from '../assets/NoPhoto.jpeg';
+import axios from 'axios';
 
 export default function Chat() {
+  const navigate = useNavigate();
   // Recuperar usuário logado
   const currentUser = JSON.parse(localStorage.getItem('currentUser'));
   const isLoggedIn = !!currentUser;
 
-  // Carrega mensagens do usuário logado
-  const [messages, setMessages] = useState(() => {
-    if (!isLoggedIn) return [];
-    const saved = localStorage.getItem(`chatMessages_${currentUser.email}`);
-    return saved ? JSON.parse(saved) : [];
-  });
-
+  // Carrega mensagens do backend para o usuário logado
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState(null);
+  const [logoutMsg, setLogoutMsg] = useState("");
 
   const API_URL = import.meta.env.VITE_API_URL;
 
-  // Salva mensagens apenas se logado
   useEffect(() => {
-    if (isLoggedIn) {
-      localStorage.setItem(`chatMessages_${currentUser.email}`, JSON.stringify(messages));
-    }
-  }, [messages, isLoggedIn, currentUser]);
+    const fetchMessages = async () => {
+      if (!isLoggedIn || !currentUser.id) return;
+      try {
+        const response = await axios.get(`${API_URL}/mensagens/usuario/${currentUser.id}`);
+        if (response.status === 200) {
+          setMessages(response.data);
+        } else {
+          setMessages([]);
+        }
+      } catch (err) {
+        setMessages([]);
+      }
+    };
+    fetchMessages();
+  }, [isLoggedIn, currentUser, API_URL]);
 
   const toggleTheme = () => {
     document.body.setAttribute('data-bs-theme', 
@@ -42,15 +50,17 @@ export default function Chat() {
 
   const handleLogout = () => {
     localStorage.removeItem('currentUser');
-    navigate('/login');
-  }
+    setLogoutMsg('Logout realizado com sucesso!');
+    setTimeout(() => {
+      setLogoutMsg("");
+      navigate('/login');
+    }, 1200);
+  };
 
   // Limpa histórico apenas do usuário logado
   const clearChat = () => {
     setMessages([]);
-    if (isLoggedIn) {
-      localStorage.removeItem(`chatMessages_${currentUser.email}`);
-    }
+    // Opcional: pode implementar deleção no backend se desejar
   };
 
   const handleSubmit = async (e) => {
@@ -61,33 +71,19 @@ export default function Chat() {
     setError(null);
 
     try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ descricao: input }), // Campo corrigido para "descricao"
-    });
-
-    const result = await response.json();
-    
-    const newMessage = {
-      text: input,
-      isFraud: result.resultado === "FRAUDE", // Lógica corrigida
-      details: result.resultado,
-      timestamp: new Date().toISOString()
-    };
-
-      setMessages(prev => [...prev, newMessage]);
-      setInput('');
-
-    } catch (err) {
-      if (err instanceof SyntaxError) {
-        setError('Resposta inválida da API');
+      // Envia mensagem para o backend
+      const response = await axios.post(`${API_URL}/mensagens/enviar`, {
+        conteudo: input,
+        usuario: { id: currentUser.id }
+      });
+      if (response.status === 201) {
+        setMessages(prev => [...prev, response.data]);
+        setInput('');
       } else {
-        setError(`Falha na comunicação: ${err.message}`);
-        console.error('Erro completo:', err);
+        setError('Erro ao enviar mensagem.');
       }
+    } catch (err) {
+      setError('Erro ao conectar com o servidor.');
     } finally {
       setIsAnalyzing(false);
     }
@@ -125,6 +121,7 @@ export default function Chat() {
 
       <Container fluid className="chat-container p-0">
         {error && <Alert variant="danger" className="m-3">{error}</Alert>}
+        {logoutMsg && <Alert variant="success" className="m-3">{logoutMsg}</Alert>}
         <Row className="g-0 h-100">
           <Col md={3} className={`sidebar position-fixed h-100 ${sidebarCollapsed ? 'collapsed' : ''}`}
           style={{

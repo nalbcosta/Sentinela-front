@@ -2,39 +2,49 @@ import { useState } from 'react'
 import { Container, Card, Form, Button } from 'react-bootstrap'
 import { FaUserPlus, FaArrowLeft } from 'react-icons/fa'
 import { Link, useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import logo from '../assets/logo.svg' // Altere para o caminho correto
+
+const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 const Register = () => {
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
+  const [telefone, setTelefone] = useState('')
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState('')
   const navigate = useNavigate()
 
   // Função para lidar com registro (futuramente adicionar chamada à API)
   const handleRegister = async (e) => {
-    e.preventDefault()
-    setErro('')
-    setSucesso('')
+      e.preventDefault()
+      setErro('')
+      setSucesso('')
 
-    // Recupera usuários já cadastrados
-    const users = JSON.parse(localStorage.getItem('users') || '[]')
-    const exists = users.find(u => u.email === email)
-
-    if (exists) {
-      setErro('Email já cadastrado.')
-      return
+      if (!nome || !email || !senha || !telefone) {
+      setErro('Preencha todos os campos.');
+      return;
     }
 
-    if (nome && email && senha) {
-      const newUser = { nome, email, senha }
-      users.push(newUser)
-      localStorage.setItem('users', JSON.stringify(users))
-      setSucesso('Cadastro realizado com sucesso!')
-      setTimeout(() => navigate('/login'), 1500)
-    } else {
-      setErro('Preencha todos os campos.')
+    try {
+      const response = await axios.post(`${apiUrl}/usuarios/cadastro`, {
+        nome,
+        email,
+        telefone,
+        senha
+      });
+
+      if (response.status === 200) {
+        setSucesso('Cadastro realizado com sucesso!');
+        setTimeout(() => navigate('/login'), 1500);
+      }
+    } catch (err) {
+      if (err.response && err.response.status === 400) {
+        setErro('Email já cadastrado.');
+      } else {
+        setErro('Erro ao conectar com o servidor.');
+      }
     }
   }
 
@@ -84,6 +94,18 @@ const Register = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-semibold">Telefone</Form.Label>
+              <Form.Control
+                type="tel"
+                placeholder="(99) 99999-9999"
+                className="py-2 rounded-3"
+                required
+                value={telefone}
+                onChange={(e) => setTelefone(e.target.value)}
               />
             </Form.Group>
 
