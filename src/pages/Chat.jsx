@@ -71,19 +71,33 @@ export default function Chat() {
     setError(null);
 
     try {
-      // Envia mensagem para o backend
-      const response = await axios.post(`${API_URL}/mensagens/enviar`, {
-        conteudo: input,
-        usuario: { id: currentUser.id }
-      });
-      if (response.status === 201) {
-        setMessages(prev => [...prev, response.data]);
-        setInput('');
-      } else {
-        setError('Erro ao enviar mensagem.');
-      }
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ descricao: input }), // Campo corrigido para "descricao"
+    });
+
+    const result = await response.json();
+    
+    const newMessage = {
+      text: input,
+      isFraud: result.resultado === "FRAUDE", // Lógica corrigida
+      details: result.resultado,
+      timestamp: new Date().toISOString()
+    };
+
+      setMessages(prev => [...prev, newMessage]);
+      setInput('');
+
     } catch (err) {
-      setError('Erro ao conectar com o servidor.');
+      if (err instanceof SyntaxError) {
+        setError('Resposta inválida da API');
+      } else {
+        setError(`Falha na comunicação: ${err.message}`);
+        console.error('Erro completo:', err);
+      }
     } finally {
       setIsAnalyzing(false);
     }
