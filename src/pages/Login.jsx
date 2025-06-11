@@ -30,12 +30,17 @@ const Login = () => {
       });
 
       if (response.status === 200) {
-        setSuccessMsg('Login realizado com sucesso!');
-        setTimeout(() => {
-          localStorage.setItem('currentUser', JSON.stringify({ email }));
-          setSuccessMsg('');
-          navigate('/chat');
-        }, 1500);
+        const userRes = await axios.get(`${apiUrl}/usuarios/email/${email}`);
+        if (userRes.status === 200) {
+          localStorage.setItem('currentUser', JSON.stringify(userRes.data));
+          setSuccessMsg('Login realizado com sucesso!');
+          setTimeout(() => {
+            setSuccessMsg('');
+            navigate('/chat');
+          }, 1500);
+        } else {
+          setErro('Erro ao buscar dados do usuário.');
+        }
       }
     } 
     catch (err) {

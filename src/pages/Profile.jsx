@@ -26,10 +26,26 @@ const Profile = () => {
       setLoading(true);
       axios.get(`${apiUrl}/usuarios/${user.id}`)
         .then(res => {
-          // O backend retorna um DTO, ajuste para garantir compatibilidade
           setNome(res.data.nome || '');
           setEmail(res.data.email || '');
           setTelefone(res.data.telefone || '');
+        })
+        .catch(() => {
+          setMsg('Erro ao carregar dados do perfil.');
+          setMsgType('danger');
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else if (user && user.email) {
+      setLoading(true);
+      axios.get(`${apiUrl}/usuarios/email/${user.email}`)
+        .then(res => {
+          setNome(res.data.nome || '');
+          setEmail(res.data.email || '');
+          setTelefone(res.data.telefone || '');
+          // Atualiza localStorage para incluir o id
+          localStorage.setItem('currentUser', JSON.stringify(res.data));
         })
         .catch(() => {
           setMsg('Erro ao carregar dados do perfil.');
@@ -50,7 +66,6 @@ const Profile = () => {
     const user = JSON.parse(localStorage.getItem('currentUser'));
     try {
       setLoading(true);
-      // O backend espera um DTO de atualização, envie apenas nome e telefone
       const payload = { nome, telefone };
       if (senha) payload.senha = senha;
       const response = await axios.put(`${apiUrl}/usuarios/${user.id}`, payload);

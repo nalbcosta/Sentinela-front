@@ -11,8 +11,7 @@ import axios from 'axios';
 
 export default function Chat() {
   const navigate = useNavigate();
-  // Recuperar usuário logado
-  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+  const [currentUser, setCurrentUser] = useState(() => JSON.parse(localStorage.getItem('currentUser')));
   const isLoggedIn = !!currentUser;
 
   // Carrega mensagens do backend para o usuário logado
@@ -24,6 +23,25 @@ export default function Chat() {
   const [logoutMsg, setLogoutMsg] = useState("");
 
   const API_URL = import.meta.env.VITE_BACKEND_URL;
+
+  // Garante que currentUser tenha id (busca pelo email se necessário)
+  useEffect(() => {
+    async function ensureUserId() {
+      if (currentUser && !currentUser.id && currentUser.email) {
+        try {
+          const res = await axios.get(`${API_URL}/usuarios/email/${currentUser.email}`);
+          if (res.status === 200) {
+            setCurrentUser(res.data);
+            localStorage.setItem('currentUser', JSON.stringify(res.data));
+          }
+        } catch {
+          setError('Erro ao buscar dados do usuário. Faça login novamente.');
+        }
+      }
+    }
+    ensureUserId();
+    // eslint-disable-next-line
+  }, []);
 
   useEffect(() => {
     const fetchMessages = async () => {
