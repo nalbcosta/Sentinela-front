@@ -3,7 +3,8 @@ import { Container, Card, Form, Button } from 'react-bootstrap'
 import { FaUserPlus, FaArrowLeft } from 'react-icons/fa'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import logo from '../assets/logo.svg' // Altere para o caminho correto
+import logo from '../assets/logo.svg'
+import { Loader, AlertMessage } from '../components/Utils';
 
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -14,16 +15,19 @@ const Register = () => {
   const [telefone, setTelefone] = useState('')
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState('')
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
   // Função para lidar com registro (futuramente adicionar chamada à API)
   const handleRegister = async (e) => {
       e.preventDefault()
-      setErro('')
-      setSucesso('')
+      setErro('');
+      setSucesso('');
+      setLoading(true);
 
       if (!nome || !email || !senha || !telefone) {
       setErro('Preencha todos os campos.');
+      setLoading(false);
       return;
     }
 
@@ -39,12 +43,16 @@ const Register = () => {
         setSucesso('Cadastro realizado com sucesso!');
         setTimeout(() => navigate('/login'), 1500);
       }
-    } catch (err) {
+    } 
+    catch (err) {
       if (err.response && err.response.status === 400) {
         setErro('Email já cadastrado.');
       } else {
         setErro('Erro ao conectar com o servidor.');
       }
+    }
+    finally {
+      setLoading(false);
     }
   }
 
@@ -73,6 +81,9 @@ const Register = () => {
           </div>
 
           <Form onSubmit={handleRegister}>
+            <Loader show={loading} text="Registrando..." />
+            <AlertMessage show={!!erro} variant="danger" message={erro} onClose={() => setErro('')} />
+            <AlertMessage show={!!sucesso} variant="success" message={sucesso} onClose={() => setSucesso('')} />
             <Form.Group className="mb-3">
               <Form.Label className="fw-semibold">Nome Completo</Form.Label>
               <Form.Control 
@@ -138,8 +149,6 @@ const Register = () => {
                 Faça login
               </Link>
             </div>
-            {erro && <div className="text-danger mb-3">{erro}</div>}
-            {sucesso && <div className="text-success mb-3">{sucesso}</div>}
           </Form>
         </Card.Body>
       </Card>

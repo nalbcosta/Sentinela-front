@@ -4,6 +4,7 @@ import { FaSignInAlt, FaArrowLeft } from 'react-icons/fa'
 import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.svg' // Altere para o caminho correto
 import axios from 'axios'
+import { Loader, AlertMessage } from '../components/Utils'
 
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -11,12 +12,14 @@ const Login = () => {
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [erro, setErro] = useState('')
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate()
 
   //Função para lidar com login
-  const handleLongin = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setErro('');
+    setLoading(true);
 
     try {
       const response = await axios.post(`${apiUrl}/usuarios/login`, {
@@ -25,16 +28,19 @@ const Login = () => {
       });
 
       if (response.status === 200) {
-        // Você pode salvar o email do usuário ou token, se o backend retornar
         localStorage.setItem('currentUser', JSON.stringify({ email }));
         navigate('/chat');
       }
-    } catch (err) {
+    } 
+    catch (err) {
       if (err.response && err.response.status === 401) {
         setErro('Email ou senha inválidos.');
       } else {
         setErro('Erro ao conectar com o servidor.');
       }
+    }
+    finally {
+      setLoading(false);
     }
   }
 
@@ -62,7 +68,9 @@ const Login = () => {
             <p className="text-muted mb-0">Análise de fraudes em tempo real</p>
           </div>
 
-          <Form onSubmit={handleLongin}>
+          <Form onSubmit={handleLogin}>
+            <Loader show={loading} text="Entrando..." />
+            <AlertMessage show={!!erro} variant="danger" message={erro} onClose={() => setErro('')} />
             <Form.Group className="mb-3">
               <Form.Label className="fw-semibold">Email</Form.Label>
               <Form.Control 
@@ -104,7 +112,6 @@ const Login = () => {
                 Criar conta
               </Link>
             </div>
-            {erro && <div className="text-danger mb-3">{erro}</div>}
           </Form>
         </Card.Body>
       </Card>

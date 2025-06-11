@@ -10,25 +10,41 @@ O Sentinel AI é uma aplicação full-stack que permite aos usuários registrar-
 
 ## Tecnologias Utilizadas
 
-- **Frontend:** React, React Bootstrap, React Router, SCSS
-- **Backend:** Java Springboot (em desenvolvimento)
-- **Banco de Dados:** MySQL (em desenvolvimento)
+- **Frontend:** React, React Bootstrap, React Router, SCSS, Axios
+- **Backend:** Java Spring Boot (REST API)
+- **Banco de Dados:** MySQL
 - **IA de Fraude:** Modelo customizado para detecção de fraudes com Python
+- **Hospedagem:** Vercel (frontend), Render (backend)
 
 --- 
 
 ## Como testar o projeto
 
-- Abra o projeto via o link do vercel: https://sentinela-front-nine.vercel.app/
+- Acesse o frontend: [https://sentinela-front-nine.vercel.app/](https://sentinela-front-nine.vercel.app/)
+- API backend: [https://demo-spring-v3.onrender.com](https://demo-spring-v3.onrender.com)
+
+---
 
 ## Estrutura do Projeto
 
 - `/src/pages` — Páginas principais (Login, Registro, Chat, Perfil)
-- `/src/components` — Componentes reutilizáveis (Sidebar, etc)
+- `/src/components` — Componentes reutilizáveis (Sidebar, Loader, AlertMessage, etc)
 - `/src/assets` — Imagens e logos
 - `/src/main.scss` — Estilos globais
+- `.env` — Variáveis de ambiente (URLs das APIs)
 
 --- 
+
+## Funcionalidades
+
+- Cadastro e autenticação de usuários integrados ao backend
+- Envio e histórico de mensagens salvos no banco de dados
+- Análise de fraude em tempo real via IA
+- Edição de perfil do usuário (nome, telefone, senha)
+- Loader e alertas visuais para feedback ao usuário
+- Interface responsiva e moderna
+
+---
 
 ## Integrantes e Responsabilidades
 
@@ -40,8 +56,9 @@ O Sentinel AI é uma aplicação full-stack que permite aos usuários registrar-
 
 ## Observações
 
-- O projeto está em desenvolvimento e será integrado ao backend e IA em breve.
+- O projeto está em desenvolvimento e já possui integração entre frontend, backend e IA.
 - Para dúvidas ou sugestões, abra uma issue ou entre em contato com os integrantes.
+- Para rodar localmente, configure o arquivo `.env` com as URLs das APIs.
 
 ---
 

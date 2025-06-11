@@ -23,7 +23,7 @@ export default function Chat() {
   const [error, setError] = useState(null);
   const [logoutMsg, setLogoutMsg] = useState("");
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -60,7 +60,6 @@ export default function Chat() {
   // Limpa histórico apenas do usuário logado
   const clearChat = () => {
     setMessages([]);
-    // Opcional: pode implementar deleção no backend se desejar
   };
 
   const handleSubmit = async (e) => {
@@ -71,33 +70,28 @@ export default function Chat() {
     setError(null);
 
     try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ descricao: input }), // Campo corrigido para "descricao"
-    });
-
-    const result = await response.json();
-    
-    const newMessage = {
-      text: input,
-      isFraud: result.resultado === "FRAUDE", // Lógica corrigida
-      details: result.resultado,
-      timestamp: new Date().toISOString()
-    };
-
-      setMessages(prev => [...prev, newMessage]);
-      setInput('');
+      const response = await axios.post(`${API_URL}/mensagens/enviar`, {
+        usuarioId: currentUser.id,
+        conteudo: input
+      });
+      if (response.status === 201) {
+        const msg = response.data;
+        setMessages(prev => [
+          ...prev,
+          {
+            id: msg.id,
+            text: msg.conteudo,
+            userName: msg.usuarioNome,
+            timestamp: new Date().toISOString()
+          }
+        ]);
+        setInput('');
+      } else {
+        setError('Erro ao enviar mensagem.');
+      }
 
     } catch (err) {
-      if (err instanceof SyntaxError) {
-        setError('Resposta inválida da API');
-      } else {
-        setError(`Falha na comunicação: ${err.message}`);
-        console.error('Erro completo:', err);
-      }
+      setError('Erro ao comunicar com o servidor.');
     } finally {
       setIsAnalyzing(false);
     }
@@ -185,20 +179,12 @@ export default function Chat() {
           }}>
             <div className="messages-container">
               {messages.map((msg, i) => (
-                <div 
-                  key={i}
-                  className={`message-bubble ${msg.isFraud ? 'system' : 'user'}`}
-                >
+                <div key={msg.id || i} className="message-bubble">
                   <div className="d-flex justify-content-between align-items-center mb-2">
+                    <small>{msg.userName || currentUser.nome}</small>
                     <small>{new Date(msg.timestamp).toLocaleTimeString()}</small>
-                    <FraudBadge isFraud={msg.isFraud} details={msg.details} />
                   </div>
                   <p className="mb-0">{msg.text}</p>
-                  {msg.details && (
-                    <small className="d-block mt-2 text-muted">
-                      {msg.details}
-                    </small>
-                  )}
                 </div>
               ))}
             </div>

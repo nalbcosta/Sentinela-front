@@ -3,50 +3,64 @@ import { Container, Card, Form, Button, Image } from 'react-bootstrap'
 import { FaUserEdit, FaUpload, FaArrowLeft } from 'react-icons/fa'
 import { Link, useNavigate } from 'react-router-dom'
 import Photo from '../assets/NoPhoto.jpeg'
-import logo from '../assets/logo.svg' // Altere para o caminho correto
+import logo from '../assets/logo.svg' 
+import { Loader, AlertMessage } from '../components/Utils'
 import axios from 'axios'
+import { set } from 'mongoose'
+
+const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 const Profile = () => {
-  const [nome, setNome] = useState('')
-  const [email, setEmail] = useState('')
-  const [senha, setSenha] = useState('')
-  const [telefone, setTelefone] = useState('')
-  const [msg, setMsg] = useState('')
-  const navigate = useNavigate()
+  const [nome, setNome] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [telefone, setTelefone] = useState('');
+  const [msg, setMsg] = useState('');
+  const [msgType, setMsgType] = useState('success');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('currentUser'))
     if (user && user.id) {
-      axios.get(`${import.meta.env.VITE_API_URL}/usuarios/${user.id}`)
+      setLoading(true);
+      axios.get(`${apiUrl}/usuarios/${user.id}`)
         .then(res => {
-          setNome(res.data.nome)
-          setEmail(res.data.email)
-          setTelefone(res.data.telefone)
+          setNome(res.data.nome);
+          setEmail(res.data.email);
+          setTelefone(res.data.telefone);
         })
         .catch(() => {
-          setMsg('Erro ao carregar dados do perfil.')
+          setMsg('Erro ao carregar dados do perfil.');
+          setMsgType('danger');
+        })
+        .finally(() => {
+          setLoading(false);
         })
     }
   }, [])
 
   const handleUpdate = async (e) => {
-    e.preventDefault()
-    setMsg('')
-    const user = JSON.parse(localStorage.getItem('currentUser'))
+    e.preventDefault();
+    setMsg('');
+    const user = JSON.parse(localStorage.getItem('currentUser'));
     try {
+      setLoading(true);
       const response = await axios.put(`${import.meta.env.VITE_API_URL}/usuarios/${user.id}`, {
         nome,
         telefone,
         senha: senha || undefined // só envia se for alterada
       })
       if (response.status === 200) {
-        const updatedUser = { ...user, nome, telefone, senha: senha ? senha : user.senha }
-        localStorage.setItem('currentUser', JSON.stringify(updatedUser))
-        setMsg('Perfil atualizado!')
-        setSenha('')
+        localStorage.setItem('currentUser', JSON.stringify(response.data));
+        setMsg('Perfil atualizado!');
+        setMsgType('success');
       }
     } catch {
       setMsg('Erro ao atualizar perfil!')
+      setMsgType('danger');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -93,67 +107,71 @@ const Profile = () => {
             <h2 className="mt-3 fw-bold">Meu Perfil</h2>
           </div>
 
-          <Form onSubmit={handleUpdate}>
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-semibold">Nome Completo</Form.Label>
-              <Form.Control 
-                type="text" 
-                value={nome}
-                onChange={e => setNome(e.target.value)}
-                className="py-2 rounded-3"
-                required
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-semibold">Email</Form.Label>
-              <Form.Control
-                type="email"
-                value={email}
-                className="py-2 rounded-3 bg-light"
-                disabled
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-semibold">Telefone</Form.Label>
-              <Form.Control
-                type="tel"
-                value={telefone}
-                onChange={e => setTelefone(e.target.value)}
-                className="py-2 rounded-3"
-                required
-              />
-            </Form.Group>
-            <Form.Group className="mb-4">
-              <Form.Label className="fw-semibold">Nova Senha</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Deixe em branco para manter a atual"
-                className="py-2 rounded-3"
-                value={senha}
-                onChange={e => setSenha(e.target.value)}
-              />
-            </Form.Group>
-            {msg && <div className="text-success mb-3">{msg}</div>}
+          <Loader loading={loading} text='Carregando Perfil..' />
+          <AlertMessage show={!!msg} variant={msgType} message={msg} onClose={() => setMsg('')} />
+          {!loading && (
+            <Form onSubmit={handleUpdate}>
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-semibold">Nome Completo</Form.Label>
+                <Form.Control 
+                  type="text" 
+                  value={nome}
+                  onChange={e => setNome(e.target.value)}
+                  className="py-2 rounded-3"
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-semibold">Email</Form.Label>
+                <Form.Control
+                  type="email"
+                  value={email}
+                  className="py-2 rounded-3 bg-light"
+                  disabled
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-semibold">Telefone</Form.Label>
+                <Form.Control
+                  type="tel"
+                  value={telefone}
+                  onChange={e => setTelefone(e.target.value)}
+                  className="py-2 rounded-3"
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-4">
+                <Form.Label className="fw-semibold">Nova Senha</Form.Label>
+                <Form.Control
+                  type="password"
+                  placeholder="Deixe em branco para manter a atual"
+                  className="py-2 rounded-3"
+                  value={senha}
+                  onChange={e => setSenha(e.target.value)}
+                />
+              </Form.Group>
+              {msg && <div className="text-success mb-3">{msg}</div>}
 
-            <div className="d-flex justify-content-end gap-3">
-              <Button 
-                variant="outline-secondary" 
-                className="rounded-3 px-4 py-2 fw-semibold"
-                as={Link}
-                to="/"
-              >
-                Cancelar
-              </Button>
-              <Button 
-                variant="primary" 
-                type="submit"
-                className="rounded-3 px-4 py-2 fw-semibold d-flex align-items-center"
-              >
-                <FaUserEdit className="me-2" />
-                Atualizar Perfil
-              </Button>
-            </div>
-          </Form>
+              <div className="d-flex justify-content-end gap-3">
+                <Button 
+                  variant="outline-secondary" 
+                  className="rounded-3 px-4 py-2 fw-semibold"
+                  as={Link}
+                  to="/"
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  variant="primary" 
+                  type="submit"
+                  className="rounded-3 px-4 py-2 fw-semibold d-flex align-items-center"
+                >
+                  <FaUserEdit className="me-2" />
+                  Atualizar Perfil
+                </Button>
+              </div>
+            </Form>
+          )}
         </Card.Body>
       </Card>
     </Container>
