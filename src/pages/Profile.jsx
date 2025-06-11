@@ -6,7 +6,7 @@ import Photo from '../assets/NoPhoto.jpeg'
 import logo from '../assets/logo.svg' 
 import { Loader, AlertMessage } from '../components/Utils'
 import axios from 'axios'
-import { set } from 'mongoose'
+
 
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
