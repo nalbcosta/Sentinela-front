@@ -21,14 +21,15 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('currentUser'))
+    const user = JSON.parse(localStorage.getItem('currentUser'));
     if (user && user.id) {
       setLoading(true);
       axios.get(`${apiUrl}/usuarios/${user.id}`)
         .then(res => {
-          setNome(res.data.nome);
-          setEmail(res.data.email);
-          setTelefone(res.data.telefone);
+          // O backend retorna um DTO, ajuste para garantir compatibilidade
+          setNome(res.data.nome || '');
+          setEmail(res.data.email || '');
+          setTelefone(res.data.telefone || '');
         })
         .catch(() => {
           setMsg('Erro ao carregar dados do perfil.');
@@ -36,7 +37,10 @@ const Profile = () => {
         })
         .finally(() => {
           setLoading(false);
-        })
+        });
+    } else {
+      setMsg('Usuário não encontrado. Faça login novamente.');
+      setMsgType('danger');
     }
   }, [])
 
@@ -46,12 +50,12 @@ const Profile = () => {
     const user = JSON.parse(localStorage.getItem('currentUser'));
     try {
       setLoading(true);
-      const response = await axios.put(`${import.meta.env.VITE_API_URL}/usuarios/${user.id}`, {
-        nome,
-        telefone,
-        senha: senha || undefined // só envia se for alterada
-      })
+      // O backend espera um DTO de atualização, envie apenas nome e telefone
+      const payload = { nome, telefone };
+      if (senha) payload.senha = senha;
+      const response = await axios.put(`${apiUrl}/usuarios/${user.id}`, payload);
       if (response.status === 200) {
+        // Atualize o localStorage com o novo DTO retornado
         localStorage.setItem('currentUser', JSON.stringify(response.data));
         setMsg('Perfil atualizado!');
         setMsgType('success');

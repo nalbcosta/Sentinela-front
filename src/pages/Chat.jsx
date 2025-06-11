@@ -181,10 +181,10 @@ export default function Chat() {
               {messages.map((msg, i) => (
                 <div key={msg.id || i} className="message-bubble">
                   <div className="d-flex justify-content-between align-items-center mb-2">
-                    <small>{msg.userName || currentUser.nome}</small>
-                    <small>{new Date(msg.timestamp).toLocaleTimeString()}</small>
+                    <small>{msg.usuarioNome || currentUser.nome}</small>
+                    <small>{msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : ''}</small>
                   </div>
-                  <p className="mb-0">{msg.text}</p>
+                  <p className="mb-0">{msg.conteudo}</p>
                 </div>
               ))}
             </div>

@@ -12,6 +12,7 @@ const Login = () => {
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [erro, setErro] = useState('')
+  const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate()
 
@@ -19,6 +20,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setErro('');
+    setSuccessMsg('');
     setLoading(true);
 
     try {
@@ -28,8 +30,12 @@ const Login = () => {
       });
 
       if (response.status === 200) {
-        localStorage.setItem('currentUser', JSON.stringify({ email }));
-        navigate('/chat');
+        setSuccessMsg('Login realizado com sucesso!');
+        setTimeout(() => {
+          localStorage.setItem('currentUser', JSON.stringify({ email }));
+          setSuccessMsg('');
+          navigate('/chat');
+        }, 1500);
       }
     } 
     catch (err) {
@@ -71,6 +77,7 @@ const Login = () => {
           <Form onSubmit={handleLogin}>
             <Loader show={loading} text="Entrando..." />
             <AlertMessage show={!!erro} variant="danger" message={erro} onClose={() => setErro('')} />
+            <AlertMessage show={!!successMsg} variant="success" message={successMsg} onClose={() => setSuccessMsg('')} />
             <Form.Group className="mb-3">
               <Form.Label className="fw-semibold">Email</Form.Label>
               <Form.Control 

@@ -39,9 +39,12 @@ const Register = () => {
         senha
       });
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         setSucesso('Cadastro realizado com sucesso!');
-        setTimeout(() => navigate('/login'), 1500);
+        setTimeout(() => {
+          setSucesso('');
+          navigate('/login');
+        }, 1800);
       }
     } 
     catch (err) {
