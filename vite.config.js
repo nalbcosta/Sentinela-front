@@ -16,6 +16,12 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: './index.html'
+      },
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          bootstrap: ['react-bootstrap', 'bootstrap'],
+        }
       }
     }
   }
