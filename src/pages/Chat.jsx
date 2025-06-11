@@ -1,20 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Container, Row, Col, Form, Button, OverlayTrigger, Tooltip, Alert } from 'react-bootstrap';
-import { FiMenu, FiPlus, FiTrash2, FiChevronLeft, FiChevronRight, FiSun, FiMoon, FiLogOut } from 'react-icons/fi';
+import { FiPlus, FiTrash2, FiChevronLeft, FiChevronRight, FiSun, FiMoon, FiLogOut } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
 import FraudBadge from '../components/FraudBadge';
 import Sidebar from '../components/Sidebar';
 import logo from '../assets/logo.svg';
 import Photo from '../assets/NoPhoto.jpeg';
-import axios from 'axios';
 
 export default function Chat() {
   const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useState(() => JSON.parse(localStorage.getItem('currentUser')));
+  // Recuperar usuário logado
+  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
   const isLoggedIn = !!currentUser;
 
-  // Carrega mensagens do backend para o usuário logado
+  // Mensagens só no estado local
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -22,35 +22,7 @@ export default function Chat() {
   const [error, setError] = useState(null);
   const [logoutMsg, setLogoutMsg] = useState("");
 
-  const API_URL = import.meta.env.VITE_BACKEND_URL;
-
-  // Garante que currentUser tenha id (busca pelo email se necessário)
-  useEffect(() => {
-    async function ensureUserId() {
-      if (!currentUser || !currentUser.id) {
-        setError('Usuário não encontrado. Faça login novamente.');
-      }
-    }
-    ensureUserId();
-    // eslint-disable-next-line
-  }, []);
-
-  useEffect(() => {
-    const fetchMessages = async () => {
-      if (!isLoggedIn || !currentUser || !currentUser.id) return;
-      try {
-        const response = await axios.get(`${API_URL}/mensagens/usuario/${currentUser.id}`);
-        if (response.status === 200) {
-          setMessages(response.data);
-        } else {
-          setMessages([]);
-        }
-      } catch (err) {
-        setMessages([]);
-      }
-    };
-    fetchMessages();
-  }, [isLoggedIn, currentUser, API_URL]);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const toggleTheme = () => {
     document.body.setAttribute('data-bs-theme', 
@@ -74,34 +46,35 @@ export default function Chat() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!input.trim() || isAnalyzing || !currentUser || !currentUser.id) {
-      setError('Usuário inválido. Faça login novamente.');
-      return;
-    }
+    if (!input.trim() || isAnalyzing) return;
+
     setIsAnalyzing(true);
     setError(null);
+
     try {
-      const response = await axios.post(`${API_URL}/mensagens/enviar`, {
-        usuarioId: currentUser.id,
-        conteudo: input
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ descricao: input }),
       });
-      if (response.status === 201 && response.data) {
-        const msg = response.data;
-        setMessages(prev => [
-          ...prev,
-          {
-            id: msg.id,
-            conteudo: msg.conteudo,
-            usuarioNome: msg.usuarioNome,
-            timestamp: new Date().toISOString()
-          }
-        ]);
-        setInput('');
-      } else {
-        setError('Erro ao enviar mensagem.');
-      }
+      const result = await response.json();
+      const newMessage = {
+        text: input,
+        isFraud: result.resultado === "FRAUDE",
+        details: result.resultado,
+        timestamp: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, newMessage]);
+      setInput('');
     } catch (err) {
-      setError('Erro ao comunicar com o servidor.');
+      if (err instanceof SyntaxError) {
+        setError('Resposta inválida da API');
+      } else {
+        setError(`Falha na comunicação: ${err.message}`);
+        console.error('Erro completo:', err);
+      }
     } finally {
       setIsAnalyzing(false);
     }
@@ -189,12 +162,20 @@ export default function Chat() {
           }}>
             <div className="messages-container">
               {messages.map((msg, i) => (
-                <div key={msg.id || i} className="message-bubble">
+                <div 
+                  key={i}
+                  className={`message-bubble ${msg.isFraud ? 'system' : 'user'}`}
+                >
                   <div className="d-flex justify-content-between align-items-center mb-2">
-                    <small>{msg.usuarioNome || currentUser.nome}</small>
-                    <small>{msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : ''}</small>
+                    <small>{new Date(msg.timestamp).toLocaleTimeString()}</small>
+                    <FraudBadge isFraud={msg.isFraud} details={msg.details} />
                   </div>
-                  <p className="mb-0">{msg.conteudo}</p>
+                  <p className="mb-0">{msg.text}</p>
+                  {msg.details && (
+                    <small className="d-block mt-2 text-muted">
+                      {msg.details}
+                    </small>
+                  )}
                 </div>
               ))}
             </div>
