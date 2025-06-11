@@ -88,18 +88,19 @@ export default function Chat() {
     setError(null);
 
     try {
+      // O backend espera um DTO: { usuarioId, conteudo }
       const response = await axios.post(`${API_URL}/mensagens/enviar`, {
         usuarioId: currentUser.id,
         conteudo: input
       });
-      if (response.status === 201) {
+      if (response.status === 201 && response.data) {
         const msg = response.data;
         setMessages(prev => [
           ...prev,
           {
             id: msg.id,
-            text: msg.conteudo,
-            userName: msg.usuarioNome,
+            conteudo: msg.conteudo,
+            usuarioNome: msg.usuarioNome,
             timestamp: new Date().toISOString()
           }
         ]);
@@ -107,7 +108,6 @@ export default function Chat() {
       } else {
         setError('Erro ao enviar mensagem.');
       }
-
     } catch (err) {
       setError('Erro ao comunicar com o servidor.');
     } finally {
