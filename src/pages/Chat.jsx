@@ -27,16 +27,8 @@ export default function Chat() {
   // Garante que currentUser tenha id (busca pelo email se necessário)
   useEffect(() => {
     async function ensureUserId() {
-      if (currentUser && !currentUser.id && currentUser.email) {
-        try {
-          const res = await axios.get(`${API_URL}/usuarios/email/${currentUser.email}`);
-          if (res.status === 200) {
-            setCurrentUser(res.data);
-            localStorage.setItem('currentUser', JSON.stringify(res.data));
-          }
-        } catch {
-          setError('Erro ao buscar dados do usuário. Faça login novamente.');
-        }
+      if (!currentUser || !currentUser.id) {
+        setError('Usuário não encontrado. Faça login novamente.');
       }
     }
     ensureUserId();
@@ -45,7 +37,7 @@ export default function Chat() {
 
   useEffect(() => {
     const fetchMessages = async () => {
-      if (!isLoggedIn || !currentUser.id) return;
+      if (!isLoggedIn || !currentUser || !currentUser.id) return;
       try {
         const response = await axios.get(`${API_URL}/mensagens/usuario/${currentUser.id}`);
         if (response.status === 200) {
@@ -82,13 +74,13 @@ export default function Chat() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!input.trim() || isAnalyzing) return;
-
+    if (!input.trim() || isAnalyzing || !currentUser || !currentUser.id) {
+      setError('Usuário inválido. Faça login novamente.');
+      return;
+    }
     setIsAnalyzing(true);
     setError(null);
-
     try {
-      // O backend espera um DTO: { usuarioId, conteudo }
       const response = await axios.post(`${API_URL}/mensagens/enviar`, {
         usuarioId: currentUser.id,
         conteudo: input
