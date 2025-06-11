@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, Button, OverlayTrigger, Tooltip, Alert } from 'react-bootstrap';
 import { FiPlus, FiTrash2, FiChevronLeft, FiChevronRight, FiSun, FiMoon, FiLogOut } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
@@ -14,8 +14,15 @@ export default function Chat() {
   const currentUser = JSON.parse(localStorage.getItem('currentUser'));
   const isLoggedIn = !!currentUser;
 
-  // Mensagens só no estado local
-  const [messages, setMessages] = useState([]);
+  // Carregar histórico do localStorage ao iniciar
+  const [messages, setMessages] = useState(() => {
+    try {
+      const saved = localStorage.getItem('chatHistory');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [input, setInput] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -42,6 +49,7 @@ export default function Chat() {
   // Limpa histórico apenas do usuário logado
   const clearChat = () => {
     setMessages([]);
+    localStorage.removeItem('chatHistory');
   };
 
   const handleSubmit = async (e) => {
@@ -81,6 +89,11 @@ export default function Chat() {
   };
 
   const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
+
+  // Salvar mensagens no localStorage sempre que mudarem
+  useEffect(() => {
+    localStorage.setItem('chatHistory', JSON.stringify(messages));
+  }, [messages]);
 
   return (
     <>
