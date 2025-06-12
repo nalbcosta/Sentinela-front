@@ -22,8 +22,8 @@ const Profile = () => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('currentUser'));
+    setLoading(true); // Mover para o início para garantir que o Loader apareça imediatamente
     if (user && user.id) {
-      setLoading(true);
       axios.get(`${apiUrl}/usuarios/${user.id}`)
         .then(res => {
           setNome(res.data.nome || '');
@@ -38,7 +38,6 @@ const Profile = () => {
           setLoading(false);
         });
     } else if (user && user.email) {
-      setLoading(true);
       axios.get(`${apiUrl}/usuarios/email/${user.email}`)
         .then(res => {
           setNome(res.data.nome || '');
@@ -57,6 +56,7 @@ const Profile = () => {
     } else {
       setMsg('Usuário não encontrado. Faça login novamente.');
       setMsgType('danger');
+      setLoading(false);
     }
   }, [])
 
